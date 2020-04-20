@@ -1,0 +1,285 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Injector Design Tool</title><meta name="generator" content="MATLAB 9.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-12-07"><meta name="DC.source" content="Injector_Design_Tool.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Injector Design Tool</h1><!--introduction--><p>The following is a comprehensive injector calculation tool. Make sure that all relevant functions are in the same path/folder as this script. Do NOT change the names of any functions.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">GIVENS/ASSUMPTIONS</a></li><li><a href="#3">PV CALC</a></li><li><a href="#4">ORIFICE GEOMETRY</a></li><li><a href="#5">FLOW MODELING</a></li><li><a href="#6">ATOMIZATION</a></li></ul></div><pre class="codeinput">clear <span class="string">all</span>
+clc
+format <span class="string">short</span> <span class="string">g</span>
+
+<span class="comment">%Injector Design Tool</span>
+    <span class="comment">%Vignesh Sella</span>
+    <span class="comment">%12/03/2018</span>
+    <span class="comment">%The following is a comprehensive injector calculation tool.</span>
+    <span class="comment">%Make sure that all relevant functions are in the same path/folder as this</span>
+    <span class="comment">%script. Do NOT change the names of any functions.</span>
+<span class="comment">%Handy Equations:</span>
+<span class="comment">%   p1+1/2*rho*v1^2=p2+1/2*rho*v2^2 // Bernoulli's Equation</span>
+<span class="comment">%   mdot=rho*s1*v1 // Mass Flow Rate</span>
+</pre><h2 id="2">GIVENS/ASSUMPTIONS</h2><pre class="codeinput">    <span class="keyword">global</span> p0, p0=7.5*10^6; <span class="comment">%Pa // Pressure in the oxidizer tank</span>
+    <span class="keyword">global</span> v0, v0=0; <span class="comment">%m/s // Initial velocity in the oxidizer tank</span>
+    <span class="keyword">global</span> rho, rho=769.9; <span class="comment">%kg/m^3 // Density of NOS at room temperature</span>
+    <span class="keyword">global</span> mdot, mdot=1.53; <span class="comment">%kg/s // Mass flow rate in steady state</span>
+    <span class="keyword">global</span> d1, d1=0.0127; <span class="comment">%m // Diamater of feed pipe, directly after oxidizer tank</span>
+    <span class="keyword">global</span> d2, d2=0.030; <span class="comment">%m // Diamater of manifold, directly before injector plate</span>
+    <span class="keyword">global</span> p3, p3=4*10^6; <span class="comment">%Pa // Expected combustion chamber pressure during steady state</span>
+    <span class="keyword">global</span> d, d=1*10^-3; <span class="comment">%m // Diameter of an individual orifice</span>
+    <span class="keyword">global</span> k, k=2; <span class="comment">%dimensionless // Head loss coefficient for radial inlet</span>
+    pseudo_p = 35;
+    units = {<span class="string">'kg/m^3'</span>;<span class="string">'kg.s'</span>;<span class="string">'m'</span>;<span class="string">'Bars'</span>};
+T1 = table({<span class="string">'Rho'</span>;<span class="string">'Desired Mdot'</span>;<span class="string">'Orf D'</span>;<span class="string">'DeltaP'</span>},[rho;mdot;d;pseudo_p],[units]);
+T1.Properties.VariableNames = {<span class="string">'Specification'</span>,<span class="string">'Value'</span>,<span class="string">'Units'</span>}
+</pre><pre class="codeoutput">
+T1 =
+
+  4&times;3 table
+
+    Specification     Value     Units  
+    ______________    _____    ________
+
+    'Rho'             769.9    'kg/m^3'
+    'Desired Mdot'     1.53    'kg.s'  
+    'Orf D'           0.001    'm'     
+    'DeltaP'             35    'Bars'  
+
+</pre><h2 id="3">PV CALC</h2><pre class="codeinput">    [p1, v1] = PVCalc(d1,p0,v0);
+    [p2, v2] = PVCalc(d2,p1,v1);
+    deltap= p2-p3; <span class="comment">%Pa // Pressure differential of manifold and combustion chamber</span>
+</pre><h2 id="4">ORIFICE GEOMETRY</h2><pre class="codeinput">   <span class="comment">%-------------------------</span>
+    Ao = pi*(d^2/4); <span class="comment">%m^2 // Area of an individual orifice</span>
+    Vinj = sqrt((2*deltap)/(k*rho)); <span class="comment">%m/s // Velocity of fluid through injector **ALSO EQUAL TO v3/sqrt(k)**</span>
+    n_tot = mdot/(rho*Vinj*Ao); <span class="comment">%# // Number of orifices in injector plate</span>
+    INT_n_tot = ceil(n_tot);
+<span class="comment">%-------------------------</span>
+    Ao_tot = Ao*INT_n_tot; <span class="comment">%m^2 // Area of all orifices combined</span>
+    Ao_tot_mm = Ao_tot*10^6; <span class="comment">%mm^2 // Area of all orifices combined</span>
+<span class="comment">%-------------------------</span>
+    d_tot = d*INT_n_tot; <span class="comment">%m // Total diameter of all orifices combined</span>
+    d_tot_mm = d*INT_n_tot*1000; <span class="comment">%mm // Total diamter of all orifices combined</span>
+    length = 7*d;
+unitz = {<span class="string">'#'</span>;<span class="string">'m/s'</span>;<span class="string">'mm^2'</span>;<span class="string">'m'</span>};
+T2 = table({<span class="string">'#ofOrf'</span>;<span class="string">'Velocity'</span>;<span class="string">'A2'</span>;<span class="string">'Length'</span>},[INT_n_tot;Vinj;Ao_tot_mm;length],[unitz]);
+T2.Properties.VariableNames = {<span class="string">'Specficiation'</span>, <span class="string">'Value'</span>,<span class="string">'Units'</span>}
+</pre><pre class="codeoutput">
+T2 =
+
+  4&times;3 table
+
+    Specficiation    Value     Units 
+    _____________    ______    ______
+
+    '#ofOrf'             38    '#'   
+    'Velocity'       67.395    'm/s' 
+    'A2'             29.845    'mm^2'
+    'Length'          0.007    'm'   
+
+</pre><h2 id="5">FLOW MODELING</h2><pre class="codeinput"><span class="comment">%Cd=0.7; %dimensionless // Ratio of actual flow to theoretical</span>
+<span class="comment">%-------------------------</span>
+<span class="comment">%SINGLE PHASE INCOMPRESSIBLE</span>
+<span class="comment">%Equation: mSPI = Cd*Ao_tot*sqrt(2*rho*deltap); %kg/s</span>
+<span class="comment">%Anonymous function which takes in various Cd values, and then exports</span>
+<span class="comment">%various mSPI values.</span>
+    mSPI = @(Cd) (Cd*Ao_tot*sqrt(2*rho*deltap));
+    Cd_range = linspace(.6,.8,10); <span class="comment">%Range of values given to Cd</span>
+    mSPI_range = mSPI(Cd_range);
+    mSPI_range_AVG = mean(mSPI_range)
+    plot(Cd_range,mSPI_range)
+
+title(<span class="string">'Cd vs mSPI'</span>)
+xlabel(<span class="string">'Cd'</span>)
+ylabel(<span class="string">'mSPI'</span>)
+<span class="comment">%-------------------------</span>
+<span class="comment">%INSERT mHEM, mDYER</span>
+<span class="comment">%-------------------------</span>
+<span class="comment">%INSERT mHEM, mDYER</span>
+</pre><pre class="codeoutput">
+mSPI_range_AVG =
+
+        1.533
+
+</pre><img vspace="5" hspace="5" src="Injector_Design_Tool_01.png" alt=""> <h2 id="6">ATOMIZATION</h2><pre class="codeinput"><span class="comment">%NITROUS OXIDE CHARACTERISITICS (at 10 degC)</span>
+    dyn=0.007146; <span class="comment">%Pa // dynamic viscosity of NOS</span>
+    kin = 8.39712e-8; <span class="comment">%m^2/s (converted from cSt) // kinematic viscosity</span>
+    st=.003948; <span class="comment">%N/m // surface tension of NOS</span>
+<span class="comment">%-------------------------</span>
+<span class="comment">%REYNOLDS NUMBER</span>
+    Re=(Vinj*d)/kin;
+<span class="comment">%-------------------------</span>
+<span class="comment">%OHNESORGE NUMBER</span>
+    Oh=dyn/sqrt(rho*st*d);
+<span class="comment">%-------------------------</span>
+<span class="comment">%WEBER NUMBER</span>
+    We=rho*Vinj^2*d/st ;
+<span class="comment">%-------------------------</span>
+T2 = table({<span class="string">'Reynolds'</span>;<span class="string">'Ohnesorge'</span>;<span class="string">'Weber'</span>},[Re;Oh;We]);
+T2.Properties.VariableNames = {<span class="string">'Specficiation'</span>, <span class="string">'Value'</span>}
+</pre><pre class="codeoutput">
+T2 =
+
+  3&times;2 table
+
+    Specficiation      Value   
+    _____________    __________
+
+    'Reynolds'        8.026e+05
+    'Ohnesorge'         0.12962
+    'Weber'          8.8575e+05
+
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Injector Design Tool
+% The following is a comprehensive injector calculation tool.
+% Make sure that all relevant functions are in the same path/folder as this
+% script. Do NOT change the names of any functions.
+%%
+clear all
+clc
+format short g
+
+%Injector Design Tool
+    %Vignesh Sella
+    %12/03/2018
+    %The following is a comprehensive injector calculation tool.
+    %Make sure that all relevant functions are in the same path/folder as this
+    %script. Do NOT change the names of any functions.
+%Handy Equations:
+%   p1+1/2*rho*v1^2=p2+1/2*rho*v2^2 // Bernoulli's Equation
+%   mdot=rho*s1*v1 // Mass Flow Rate
+
+%% GIVENS/ASSUMPTIONS
+    global p0, p0=7.5*10^6; %Pa // Pressure in the oxidizer tank
+    global v0, v0=0; %m/s // Initial velocity in the oxidizer tank
+    global rho, rho=769.9; %kg/m^3 // Density of NOS at room temperature 
+    global mdot, mdot=1.53; %kg/s // Mass flow rate in steady state
+    global d1, d1=0.0127; %m // Diamater of feed pipe, directly after oxidizer tank
+    global d2, d2=0.030; %m // Diamater of manifold, directly before injector plate
+    global p3, p3=4*10^6; %Pa // Expected combustion chamber pressure during steady state
+    global d, d=1*10^-3; %m // Diameter of an individual orifice
+    global k, k=2; %dimensionless // Head loss coefficient for radial inlet
+    pseudo_p = 35;
+    units = {'kg/m^3';'kg.s';'m';'Bars'};
+T1 = table({'Rho';'Desired Mdot';'Orf D';'DeltaP'},[rho;mdot;d;pseudo_p],[units]);
+T1.Properties.VariableNames = {'Specification','Value','Units'}
+%% PV CALC
+    [p1, v1] = PVCalc(d1,p0,v0);
+    [p2, v2] = PVCalc(d2,p1,v1);
+    deltap= p2-p3; %Pa // Pressure differential of manifold and combustion chamber
+%% ORIFICE GEOMETRY
+   %REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+    Ao = pi*(d^2/4); %m^2 // Area of an individual orifice 
+    Vinj = sqrt((2*deltap)/(k*rho)); %m/s // Velocity of fluid through injector **ALSO EQUAL TO v3/sqrt(k)**
+    n_tot = mdot/(rho*Vinj*Ao); %# // Number of orifices in injector plate
+    INT_n_tot = ceil(n_tot);
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH- 
+    Ao_tot = Ao*INT_n_tot; %m^2 // Area of all orifices combined
+    Ao_tot_mm = Ao_tot*10^6; %mm^2 // Area of all orifices combined
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+    d_tot = d*INT_n_tot; %m // Total diameter of all orifices combined
+    d_tot_mm = d*INT_n_tot*1000; %mm // Total diamter of all orifices combined
+    length = 7*d;
+unitz = {'#';'m/s';'mm^2';'m'};
+T2 = table({'#ofOrf';'Velocity';'A2';'Length'},[INT_n_tot;Vinj;Ao_tot_mm;length],[unitz]);
+T2.Properties.VariableNames = {'Specficiation', 'Value','Units'}
+%% FLOW MODELING
+%Cd=0.7; %dimensionless // Ratio of actual flow to theoretical
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+%SINGLE PHASE INCOMPRESSIBLE
+%Equation: mSPI = Cd*Ao_tot*sqrt(2*rho*deltap); %kg/s
+%Anonymous function which takes in various Cd values, and then exports
+%various mSPI values.
+    mSPI = @(Cd) (Cd*Ao_tot*sqrt(2*rho*deltap)); 
+    Cd_range = linspace(.6,.8,10); %Range of values given to Cd
+    mSPI_range = mSPI(Cd_range); 
+    mSPI_range_AVG = mean(mSPI_range)
+    plot(Cd_range,mSPI_range)
+    
+title('Cd vs mSPI')
+xlabel('Cd')
+ylabel('mSPI')
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+%INSERT mHEM, mDYER
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+%INSERT mHEM, mDYER
+%% ATOMIZATION
+%NITROUS OXIDE CHARACTERISITICS (at 10 degC)
+    dyn=0.007146; %Pa // dynamic viscosity of NOS
+    kin = 8.39712e-8; %m^2/s (converted from cSt) // kinematic viscosity
+    st=.003948; %N/m // surface tension of NOS
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+%REYNOLDS NUMBER
+    Re=(Vinj*d)/kin;
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+%OHNESORGE NUMBER 
+    Oh=dyn/sqrt(rho*st*d);
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+%WEBER NUMBER
+    We=rho*Vinj^2*d/st ;
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+T2 = table({'Reynolds';'Ohnesorge';'Weber'},[Re;Oh;We]);
+T2.Properties.VariableNames = {'Specficiation', 'Value'}
+%%
+##### SOURCE END #####
+--></body></html>
